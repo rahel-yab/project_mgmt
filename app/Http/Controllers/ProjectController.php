@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreProjectRequest; 
 use App\Services\ProjectService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Gate;
 
 class ProjectController extends Controller
 {
@@ -32,5 +33,19 @@ class ProjectController extends Controller
             'data' => $project
         ], 201);
     }
+
+    public function destroy(\App\Models\Project $project): JsonResponse
+{
+    // 1. Authorization Check (Only the creator or Admin can delete)
+    // We will define this 'delete' rule in the ProjectPolicy
+    Gate::authorize('delete', $project);
+
+    // 2. Call the Service to handle the "Cascade Soft Delete"
+    $this->projectService->deleteProject($project);
+
+    return response()->json([
+        'message' => 'Project and its tasks have been moved to trash.'
+    ], 200);
+}
 }
 

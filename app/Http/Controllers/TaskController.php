@@ -37,4 +37,14 @@ class TaskController extends Controller
         
         return TaskResource::collection($tasks);
     }
+
+    public function destroy(Task $task)
+{
+    // Check if the user is authorized to delete (Usually Managers/Admin)
+    Gate::authorize('delete', $task);
+
+    $this->taskService->deleteTask($task);
+
+    return response()->json(['message' => 'Task moved to trash (Soft Deleted)']);
+}
 }
