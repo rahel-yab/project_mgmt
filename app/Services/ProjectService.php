@@ -25,4 +25,13 @@ class ProjectService
     {
         return Project::with('creator:id,name')->paginate(10);
     }
+
+    public function deleteProject(Project $project)
+{
+    // Manually soft-delete tasks so they are also hidden
+    $project->tasks()->delete(); 
+    
+    // Then soft-delete the project
+    $project->delete();
+}
 }
