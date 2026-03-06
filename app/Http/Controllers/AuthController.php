@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Services\AuthService;
+use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
@@ -10,35 +12,24 @@ class AuthController extends Controller
 {
     public function __construct(protected AuthService $authService) {}
 
-    public function register(Request $request): JsonResponse
+    public function register(RegisterRequest $request): JsonResponse
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-            'role' => 'nullable|in:manager,developer'
-        ]);
-
-        $result = $this->authService->register($validated);
+        // Validation has already passed before this line is hit
+        $result = $this->authService->register($request->validated());
 
         return response()->json($result, 201);
     }
 
-    public function login(Request $request): JsonResponse
+    public function login(LoginRequest $request): JsonResponse
     {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
-
-        $result = $this->authService->login($request->email, $request->password);
-
-        return response()->json($result);
+        return response()->json(
+        $this->authService->login($request->validated())
+    );
     }
 
     public function logout(Request $request): JsonResponse
     {
         $this->authService->logout($request->user());
-        return response()->json(['message' => 'Logged out']);
+        return response()->json(['message' => 'Logged out successfully']);
     }
 }
