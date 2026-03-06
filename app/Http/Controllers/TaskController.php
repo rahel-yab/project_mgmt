@@ -17,7 +17,7 @@ class TaskController extends Controller
         // ... validation ...
         $task = $this->taskService->createTask($request->all());
 
-        // 2. Wrap the result in the Resource
+        // Wrap the result in the Resource
         return new TaskResource($task); 
     }
 
@@ -26,8 +26,7 @@ class TaskController extends Controller
         Gate::authorize('updateStatus', $task);
 
         $updatedTask = $this->taskService->updateStatus($task, $request->status);
-        
-        // 3. Instead of a manual array, return the Resource with a message
+    
         return (new TaskResource($updatedTask))
             ->additional(['message' => 'Status updated successfully']);
     }
@@ -36,7 +35,6 @@ class TaskController extends Controller
     {
         $tasks = $this->taskService->getAllTasks();
         
-        // 4. For multiple items, use the ::collection() method
         return TaskResource::collection($tasks);
     }
 }
