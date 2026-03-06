@@ -35,9 +35,13 @@ class TaskPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Task $task): bool
+    public function updateStatus(User $user, Task $task): bool
     {
-        return $user->role === 'admin' || $task->assigned_to === $user->id;
+        if ($user->role === 'manager') {
+            return true;
+        }
+
+        return (int) $task->assigned_to === (int) $user->id;
     }
 
     /**
