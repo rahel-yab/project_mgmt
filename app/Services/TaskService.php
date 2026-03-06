@@ -30,4 +30,11 @@ class TaskService
         // Return paginated results (Requirement: Part 2 API)
         return $query->paginate(10);
     }
+
+    public function deleteTask(Task $task): bool
+{
+    // Because the Task model uses the SoftDeletes trait, 
+    // this won't erase the row, just set the deleted_at column.
+    return $task->delete();
+}
 }
