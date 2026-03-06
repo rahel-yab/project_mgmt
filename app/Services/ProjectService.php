@@ -34,4 +34,10 @@ class ProjectService
     // Then soft-delete the project
     $project->delete();
 }
+
+    public function getProjectById(\App\Models\Project $project)
+    {
+        // Eager load relationships to avoid N+1 query issues
+        return $project->load(['tasks', 'creator']);
+    }
 }

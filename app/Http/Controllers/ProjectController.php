@@ -6,6 +6,8 @@ use App\Http\Requests\StoreProjectRequest;
 use App\Services\ProjectService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Gate;
+use App\Http\Resources\ProjectResource;
+
 
 class ProjectController extends Controller
 {
@@ -47,5 +49,17 @@ class ProjectController extends Controller
         'message' => 'Project and its tasks have been moved to trash.'
     ], 200);
 }
+
+    public function show(\App\Models\Project $project): JsonResponse
+    {
+
+        // Use the service to load necessary data
+        $projectDetails = $this->projectService->getProjectById($project);
+
+        // Return clean JSON via Resource
+        return (new ProjectResource($projectDetails))
+            ->response()
+            ->setStatusCode(200);
+    }
 }
 
