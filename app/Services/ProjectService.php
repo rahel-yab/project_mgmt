@@ -22,9 +22,11 @@ class ProjectService
      * Get all projects with creator details.
      */
     public function getAllProjects()
-    {
-        return Project::with('creator:id,name')->paginate(10);
-    }
+{
+    return Project::with('creator:id,name')
+        ->withCount('tasks') // This adds a 'tasks_count' attribute to your model
+        ->paginate(10);
+}
 
     public function deleteProject(Project $project)
 {
@@ -35,9 +37,10 @@ class ProjectService
     $project->delete();
 }
 
-    public function getProjectById(\App\Models\Project $project)
-    {
-        // Eager load relationships to avoid N+1 query issues
-        return $project->load(['tasks', 'creator']);
-    }
+   public function getProjectById(Project $project)
+{
+    // For a single project, we usually want the full task details
+    return $project->load(['creator:id,name', 'tasks'])
+                   ->loadCount('tasks');
+}
 }

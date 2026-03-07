@@ -14,13 +14,18 @@ class ProjectResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return [
+        
+    return [
         'id' => $this->id,
-        'title' => $this->title,
+        'name' => $this->name,
         'description' => $this->description,
-        'created_by' => $this->creator->name ?? 'Unknown',
+        'status' => $this->status,
+        'deadline' => $this->deadline,
+        'total_tasks' => $this->tasks_count ?? 0, // Injected by withCount
+        'creator' => $this->creator,
+        // Only show full tasks list if we specifically loaded them (e.g., in the 'show' method)
         'tasks' => TaskResource::collection($this->whenLoaded('tasks')),
-        'created_at' => $this->created_at->format('Y-m-d'),
+        'created_at' => $this->created_at,
     ];
     }
 }
