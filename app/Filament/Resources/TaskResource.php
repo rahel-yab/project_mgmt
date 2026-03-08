@@ -11,9 +11,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
-use App\Models\User;
 
 class TaskResource extends Resource
 {
@@ -74,11 +72,19 @@ public static function table(Table $table): Table
         ])
         ->filters([
             Tables\Filters\SelectFilter::make('status')
-                ->options(['todo' => 'To Do', 'in_progress' => 'In Progress', 'done' => 'Done']),
+                ->label('Status')
+                ->options(['todo' => 'To Do', 'in_progress' => 'In Progress', 'done' => 'Done'])
+                ->visible(fn () => Auth::user()?->role === 'admin'),
             Tables\Filters\SelectFilter::make('priority')
-                ->options(['low' => 'Low', 'medium' => 'Medium', 'high' => 'High']),
+                ->label('Priority')
+                ->options(['low' => 'Low', 'medium' => 'Medium', 'high' => 'High'])
+                ->visible(fn () => Auth::user()?->role === 'admin'),
             Tables\Filters\SelectFilter::make('assigned_to')
-                ->relationship('developer', 'name'),
+                ->label('Assigned User')
+                ->relationship('developer', 'name', fn (Builder $query) => $query->where('role', 'developer'))
+                ->searchable()
+                ->preload()
+                ->visible(fn () => Auth::user()?->role === 'admin'),
         ]);
 }
     public static function getRelations(): array
