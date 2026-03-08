@@ -14,17 +14,33 @@ class ProjectStats extends BaseWidget
     {
         $user = Auth::user();
 
-        // 1. Logic for Total Projects
+        if ($user->role === 'developer') {
+            $myTasks = Task::query()->where('assigned_to', $user->id);
+
+            return [
+                Stat::make('My Projects', (clone $myTasks)->distinct('project_id')->count('project_id'))
+                    ->description('Projects with tasks assigned to you')
+                    ->descriptionIcon('heroicon-m-briefcase')
+                    ->color('primary'),
+
+                Stat::make('My Tasks', (clone $myTasks)->count())
+                    ->description('Tasks assigned to you')
+                    ->descriptionIcon('heroicon-m-clipboard-document-list'),
+
+                Stat::make('My Completed Tasks', (clone $myTasks)->where('status', 'done')->count())
+                    ->description('Tasks you finished')
+                    ->descriptionIcon('heroicon-m-check-circle')
+                    ->color('success'),
+            ];
+        }
+
         $projectQuery = Project::query();
         if ($user->role === 'manager') {
             $projectQuery->where('created_by', $user->id);
         }
-        
-        // 2. Logic for Total Tasks
+
         $taskQuery = Task::query();
-        if ($user->role === 'developer') {
-            $taskQuery->where('assigned_to', $user->id);
-        } elseif ($user->role === 'manager') {
+        if ($user->role === 'manager') {
             $taskQuery->whereHas('project', fn($q) => $q->where('created_by', $user->id));
         }
 
