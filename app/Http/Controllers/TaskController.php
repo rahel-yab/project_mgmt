@@ -2,30 +2,32 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreTaskRequest;
+use App\Http\Requests\UpdateTaskStatusRequest;
 use App\Models\Task;
 use App\Services\TaskService;
 use App\Http\Resources\TaskResource; // 1. Import the Resource
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
 class TaskController extends Controller
 {
     public function __construct(protected TaskService $taskService) {}
 
-    public function store(Request $request) 
+    public function store(StoreTaskRequest $request)
     {
-        // ... validation ...
-        $task = $this->taskService->createTask($request->all());
+        $task = $this->taskService->createTask($request->validated());
 
-        // Wrap the result in the Resource
-        return new TaskResource($task); 
+        return (new TaskResource($task))
+            ->additional(['message' => 'Task created successfully'])
+            ->response()
+            ->setStatusCode(201);
     }
 
-    public function updateStatus(Request $request, Task $task)
+    public function updateStatus(UpdateTaskStatusRequest $request, Task $task)
     {
         Gate::authorize('updateStatus', $task);
 
-        $updatedTask = $this->taskService->updateStatus($task, $request->status);
+        $updatedTask = $this->taskService->updateStatus($task, $request->validated('status'));
     
         return (new TaskResource($updatedTask))
             ->additional(['message' => 'Status updated successfully']);
