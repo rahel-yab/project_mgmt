@@ -4,7 +4,6 @@ namespace App\Policies;
 
 use App\Models\Task;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class TaskPolicy
 {
@@ -13,7 +12,7 @@ class TaskPolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return in_array($user->role, ['admin', 'manager', 'developer'], true);
     }
 
     /**
@@ -21,7 +20,15 @@ class TaskPolicy
      */
     public function view(User $user, Task $task): bool
     {
-        return false;
+        if ($user->role === 'admin') {
+            return true;
+        }
+
+        if ($user->role === 'manager') {
+            return (int) optional($task->project)->created_by === (int) $user->id;
+        }
+
+        return (int) $task->assigned_to === (int) $user->id;
     }
 
     /**
@@ -29,7 +36,23 @@ class TaskPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return in_array($user->role, ['admin', 'manager'], true);
+    }
+
+    /**
+     * Determine whether the user can update the model.
+     */
+    public function update(User $user, Task $task): bool
+    {
+        if ($user->role === 'admin') {
+            return true;
+        }
+
+        if ($user->role === 'manager') {
+            return (int) optional($task->project)->created_by === (int) $user->id;
+        }
+
+        return (int) $task->assigned_to === (int) $user->id;
     }
 
     /**
@@ -37,11 +60,7 @@ class TaskPolicy
      */
     public function updateStatus(User $user, Task $task): bool
     {
-        if ($user->role === 'manager') {
-            return true;
-        }
-
-        return (int) $task->assigned_to === (int) $user->id;
+        return $this->update($user, $task);
     }
 
     /**
@@ -49,7 +68,11 @@ class TaskPolicy
      */
     public function delete(User $user, Task $task): bool
     {
-        return false;
+        if ($user->role === 'admin') {
+            return true;
+        }
+
+        return $user->role === 'manager' && (int) optional($task->project)->created_by === (int) $user->id;
     }
 
     /**
@@ -57,7 +80,7 @@ class TaskPolicy
      */
     public function restore(User $user, Task $task): bool
     {
-        return false;
+        return $this->delete($user, $task);
     }
 
     /**
@@ -65,6 +88,6 @@ class TaskPolicy
      */
     public function forceDelete(User $user, Task $task): bool
     {
-        return false;
+        return $this->delete($user, $task);
     }
 }
