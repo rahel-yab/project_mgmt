@@ -48,7 +48,9 @@ public static function form(Form $form): Form
             ->disabled($isDev)->required(),
         Forms\Components\TextInput::make('title')->disabled($isDev)->required(),
         Forms\Components\Select::make('assigned_to')
-            ->relationship('developer', 'name')
+            ->relationship('developer', 'name', fn (Builder $query) => $query->where('role', 'developer'))
+            ->searchable()
+            ->preload()
             ->disabled($isDev)->required(),
         Forms\Components\Select::make('priority')
             ->options(TaskPriority::options())
