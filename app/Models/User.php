@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Models\Project;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
@@ -20,6 +21,7 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
+        'public_id',
         'name',
         'email',
         'password',
@@ -35,6 +37,15 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (self $user): void {
+            if (! $user->public_id) {
+                $user->public_id = (string) Str::ulid();
+            }
+        });
+    }
 
     /**
      * Get the attributes that should be cast.

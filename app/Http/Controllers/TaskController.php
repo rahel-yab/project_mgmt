@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskStatusRequest;
 use App\Models\Task;
+use App\Models\User;
 use App\Services\TaskService;
 use App\Http\Resources\TaskResource; // 1. Import the Resource
 use Illuminate\Support\Facades\Gate;
@@ -15,7 +16,14 @@ class TaskController extends Controller
 
     public function store(StoreTaskRequest $request)
     {
-        $task = $this->taskService->createTask($request->validated());
+        $validated = $request->validated();
+
+        $validated['assigned_to'] = User::query()
+            ->where('public_id', $validated['assigned_to'])
+            ->where('role', 'developer')
+            ->value('id');
+
+        $task = $this->taskService->createTask($validated);
 
         return (new TaskResource($task))
             ->additional(['message' => 'Task created successfully'])

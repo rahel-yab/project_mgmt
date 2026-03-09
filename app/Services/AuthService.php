@@ -11,6 +11,18 @@ use Illuminate\Validation\ValidationException;
 
 class AuthService
 {
+    private function serializeUser(User $user): array
+    {
+        return [
+            'public_id' => $user->public_id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->role,
+            'created_at' => $user->created_at,
+            'updated_at' => $user->updated_at,
+        ];
+    }
+
     public function register(array $data): array
     {
         // Hash the password (like Python's passlib/bcrypt)
@@ -22,7 +34,7 @@ class AuthService
         $user = User::create($data);
         $token = $user->createToken('api_token')->plainTextToken;
 
-        return ['user' => $user, 'token' => $token];
+        return ['user' => $this->serializeUser($user), 'token' => $token];
     }
 
     public function login(array $data): array
@@ -36,7 +48,7 @@ class AuthService
     }
 
     return [
-        'user' => $user,
+        'user' => $this->serializeUser($user),
         'token' => $user->createToken('api_token')->plainTextToken
     ];
 }

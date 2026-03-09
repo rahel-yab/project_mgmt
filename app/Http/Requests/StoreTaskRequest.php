@@ -21,8 +21,8 @@ class StoreTaskRequest extends FormRequest
             'project_id' => ['required', 'integer', 'exists:projects,id'],
             'assigned_to' => [
                 'required',
-                'integer',
-                Rule::exists('users', 'id')->where(fn ($query) => $query->where('role', 'developer')),
+                'string',
+                Rule::exists('users', 'public_id')->where(fn ($query) => $query->where('role', 'developer')),
             ],
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
