@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskStatusRequest;
+use App\Models\Project;
 use App\Models\Task;
 use App\Models\User;
 use App\Services\TaskService;
@@ -14,9 +15,13 @@ class TaskController extends Controller
 {
     public function __construct(protected TaskService $taskService) {}
 
-    public function store(StoreTaskRequest $request)
+    public function storeForProject(StoreTaskRequest $request, Project $project)
     {
+        Gate::authorize('view', $project);
+
         $validated = $request->validated();
+
+        $validated['project_id'] = $project->id;
 
         $validated['assigned_to'] = User::query()
             ->where('public_id', $validated['assigned_to'])
@@ -29,6 +34,13 @@ class TaskController extends Controller
             ->additional(['message' => 'Task created successfully'])
             ->response()
             ->setStatusCode(201);
+    }
+
+    public function show(Task $task)
+    {
+        Gate::authorize('view', $task);
+
+        return new TaskResource($task->load(['project', 'developer']));
     }
 
     public function updateStatus(UpdateTaskStatusRequest $request, Task $task)

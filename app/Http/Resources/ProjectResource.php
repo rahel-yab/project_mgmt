@@ -16,7 +16,7 @@ class ProjectResource extends JsonResource
     {
         
     return [
-        'id' => $this->id,
+        'id' => $this->public_id,
         'name' => $this->name,
         'description' => $this->description,
         'status' => $this->status,

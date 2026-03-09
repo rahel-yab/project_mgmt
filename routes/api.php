@@ -27,7 +27,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // --- TASK ROUTES ---
     Route::get('/tasks', [TaskController::class, 'index']);
-    Route::post('/tasks', [TaskController::class, 'store'])->middleware('role:manager');
+    Route::post('/projects/{project:public_id}/tasks', [TaskController::class, 'storeForProject'])->middleware('role:manager');
     Route::get('/tasks/{task}', [TaskController::class, 'show']);
     Route::patch('/tasks/{task}/status', [TaskController::class, 'updateStatus']);
     Route::delete('/tasks/{task}', [TaskController::class, 'destroy']);
