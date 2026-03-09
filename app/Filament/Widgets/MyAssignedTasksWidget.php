@@ -3,6 +3,7 @@
 namespace App\Filament\Widgets;
 
 use App\Enums\TaskStatus;
+use App\Filament\Resources\TaskResource;
 use App\Models\Task;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
@@ -51,6 +52,10 @@ class MyAssignedTasksWidget extends BaseWidget
                     ]),
             ])
             ->actions([
+                Action::make('open_task')
+                    ->label('Open Task')
+                    ->icon('heroicon-o-arrow-top-right-on-square')
+                    ->url(fn (Task $record): string => TaskResource::getUrl('edit', ['record' => $record])),
                 Action::make('update_status')
                     ->label('Update Status')
                     ->icon('heroicon-o-pencil-square')

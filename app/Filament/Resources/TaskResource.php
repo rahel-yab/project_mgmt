@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Enums\TaskPriority;
 use App\Enums\TaskStatus;
 use App\Filament\Resources\TaskResource\Pages;
+use App\Filament\Resources\TaskResource\RelationManagers\CommentsRelationManager;
 use App\Models\Task;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -73,6 +74,7 @@ public static function table(Table $table): Table
                 ->options(TaskStatus::options()),
             Tables\Columns\TextColumn::make('priority')->badge(),
         ])
+        ->recordUrl(fn (Task $record): string => static::getUrl('edit', ['record' => $record]))
         ->filters([
             Tables\Filters\SelectFilter::make('status')
                 ->label('Status')
@@ -93,7 +95,7 @@ public static function table(Table $table): Table
     public static function getRelations(): array
     {
         return [
-            //
+            CommentsRelationManager::class,
         ];
     }
 

@@ -18,7 +18,7 @@ class RecentCommentsWidget extends BaseWidget
 
     public static function canView(): bool
     {
-        return Auth::check();
+        return Auth::check() && Auth::user()?->role !== 'developer';
     }
 
     public function table(Table $table): Table
